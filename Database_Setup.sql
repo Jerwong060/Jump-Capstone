@@ -5,7 +5,7 @@ create database music_track;
 use music_track;
 
 CREATE TABLE user(
-    user_id INT Primary Key AUTO_INCREMENT NOT NULL,
+    user_id INT Primary Key NOT NULL,
     user_name VARCHAR(255) NOT NULL,
     user_login VARCHAR(255) NOT NULL,
     user_pass VARCHAR(255) NOT NULL,
@@ -54,4 +54,6 @@ CREATE TABLE actvity(
       REFERENCES user( user_id ) 
       ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+
 
