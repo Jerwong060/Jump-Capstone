@@ -38,13 +38,13 @@ INSERT INTO album(album_id,album_name,album_artist,album_genre,album_songcount,a
 
 
 
-CREATE TABLE actvity(
-    track_id INT NOT NULL PRIMARY KEY,
+CREATE TABLE activity(
+    track_id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
     user_id INT NOT NULL, -- fk
     album_id INT NOT NULL, -- fk
     status INT NOT NULL,
     listened_count INT DEFAULT 0,
-    listened_percent DOUBLE(5,2) CHECK (listened_percent BETWEEN 000.00 and 100.00),
+    listened_percent DOUBLE(5,2) DEFAULT 000.00 CHECK (listened_percent BETWEEN 000.00 and 100.00),
     CONSTRAINT fk_album_id 
       FOREIGN KEY( album_id )
       REFERENCES album( album_id )
