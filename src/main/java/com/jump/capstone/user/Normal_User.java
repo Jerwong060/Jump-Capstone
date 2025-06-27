@@ -10,12 +10,14 @@ public class Normal_User{
     private LocalDate date_created;
     private int id=0;
     private boolean adminAccess = false; 
-
-    public Normal_User(String user_name, String password){
+    private String securityAnswer;
+    
+    public Normal_User(String user_name, String password,String securityAns){
         this.user_name=user_name;
         this.id=id++;
         this.date_created= LocalDate.now();
         this.password=Password_Handler.password_worker_access(password);
+        this.securityAnswer=Password_Handler.password_worker_access(securityAns);
     }
     public String getUser_name() {
         return user_name;
@@ -34,5 +36,11 @@ public class Normal_User{
     }
     public boolean isAdminAccess() {
         return adminAccess;
+    }
+    public String getSecurityAnswer() {
+        return securityAnswer;
+    }
+    public void setSecurityAnswer(String securityAnswer) {
+        this.securityAnswer = securityAnswer;
     }
 }
