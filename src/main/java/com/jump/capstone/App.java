@@ -15,6 +15,7 @@ public class App
 
     public App(){
         
+        User_input.user_terminal();
 
     }
 }
