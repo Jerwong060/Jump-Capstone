@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 
 import com.jump.capstone.user.*;
+import com.jump.capstone.exceptions.userAlreadyExists;
+import com.jump.capstone.exceptions.userExceedPasswordAttempts;
 import com.jump.capstone.music.music_album;
 
 public interface DAOInter {
@@ -43,6 +45,16 @@ public boolean setListened_count(int track_id);
 public boolean deleteAlbum(int albumId,boolean admin);
 
 public boolean changePassword(String password);
+
+public Optional<Normal_User> makeNormalUser(String user_name, String password,String securityAns) throws userAlreadyExists;
+
+public Optional<Admin_User> makeAdminUser(String user_name, String password,String securityAns) throws userAlreadyExists;
+
+public boolean logIn(Normal_User user) throws userExceedPasswordAttempts;
+
+public boolean logOut(Normal_User user); 
+
+
 
 
 }
