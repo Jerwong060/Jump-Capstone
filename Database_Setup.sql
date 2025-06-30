@@ -7,11 +7,10 @@ use music_track;
 CREATE TABLE user(
     user_id INT Primary Key NOT NULL,
     user_name VARCHAR(255) NOT NULL,
-    user_login VARCHAR(255) NOT NULL,
+    user_ans VARCHAR(255) NOT NULL,
     user_pass VARCHAR(255) NOT NULL,
     user_made DATETIME NOT NULL,
-    user_type boolean NOT NULL,
-    user_ans VARCHAR(255) NOT NULL
+    user_type boolean NOT NULL
 );
 
 CREATE TABLE album(
