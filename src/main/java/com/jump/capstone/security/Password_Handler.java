@@ -43,6 +43,9 @@ public class Password_Handler {
     }
 
 
+    public static boolean password_checker_access_ans(String query, String ansDatabase){
+        return password_checker(query, ansDatabase);
+    }
 
     private static String password_worker(String plaintext){
         String hashed = BCrypt.withDefaults().hashToString(12, plaintext.toCharArray());
@@ -93,5 +96,14 @@ public class Password_Handler {
 
         return checkPassword.verified;
     }
+
+
+    private static boolean password_checker(String plaintext,String answer){
+
+        BCrypt.Result checkPassword = BCrypt.verifyer().verify(plaintext.toCharArray(),answer);
+
+        return checkPassword.verified;
+    }
+
 
 }

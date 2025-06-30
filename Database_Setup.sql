@@ -10,7 +10,8 @@ CREATE TABLE user(
     user_login VARCHAR(255) NOT NULL,
     user_pass VARCHAR(255) NOT NULL,
     user_made DATETIME NOT NULL,
-    user_type boolean NOT NULL
+    user_type boolean NOT NULL,
+    user_ans VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE album(

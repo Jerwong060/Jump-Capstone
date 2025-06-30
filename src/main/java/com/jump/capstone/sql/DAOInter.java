@@ -19,35 +19,31 @@ public void closeConnection() throws ClassNotFoundException,SQLException;
 
 public List<user_activity> getAllActivity(int userId);
 
-public Optional<user_activity> getActivityByTrackId(int TrackId);
+public Optional<user_activity> getActivityByTrackId(int TrackId,int user_id);
 
 public List<user_activity> getActivityByStatus(int status,int user_id);
 
 public Double getAvgListened(int user_id);
 
-public int getListened_count(int track_id);
+public int getListened_count(int album_id,int user_id);
 
-public Optional<user_activity> getActivityByAlbumId(int albumId);
-
-public boolean setStatus(int track_id);
+public boolean setStatus(int track_id,int status,Normal_User user);
 
 public boolean createNewTrack(user_activity activity);
 
-public Optional<music_album> getAlbumInfo(music_album album);
+public Optional<music_album> getAlbumInfo(int album_id);
 
 public boolean addAlbum(music_album album);
 
 public boolean deleteTrack(int track_id,Normal_User user);
 
-public boolean setListened_count(int track_id,Normal_user user);
+public boolean setListened_count(int track_id,int count,Normal_User user);
 
-public boolean deleteAlbum(int albumId,boolean admin);
+public boolean changePassword(String password,String answer,Normal_User user);
 
-public boolean changePassword(String password);
+public boolean makeNormalUser(String user_name, String password,String securityAns) throws userAlreadyExists;
 
-public Optional<Normal_User> makeNormalUser(String user_name, String password,String securityAns) throws userAlreadyExists;
-
-public Optional<Admin_User> makeAdminUser(String user_name, String password,String securityAns) throws userAlreadyExists;
+public boolean makeAdminUser(String user_name, String password,String securityAns) throws userAlreadyExists;
 
 public boolean logIn(Normal_User user) throws userExceedPasswordAttempts;
 
