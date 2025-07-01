@@ -15,7 +15,6 @@ import com.jump.capstone.exceptions.userAlreadyExists;
 import com.jump.capstone.exceptions.userExceedPasswordAttempts;
 import com.jump.capstone.music.music_album;
 import com.jump.capstone.security.Password_Handler;
-import com.jump.capstone.user.Admin_User;
 import com.jump.capstone.user.Normal_User;
 import com.jump.capstone.user.user_activity;
 
@@ -60,7 +59,7 @@ public class DAOImpli implements DAOInter {
                 int listened_count= results.getInt(5);
                 double listened_percent = results.getDouble(6);
 
-				user_activity activity= new user_activity(track_id, user, album_id, status, listened_count, listened_percent);
+				user_activity activity= new user_activity(user, album_id, status, listened_count, listened_percent);
 
 				allActivity.add(activity);
 			}
@@ -194,15 +193,15 @@ public class DAOImpli implements DAOInter {
     }
     
     @Override
-    public int getListened_count(int album_id,int user_id){
+    public int getListened_count(int track_id,int user_id){
 
     try{
 
 			connection=ConnectionManager.getConnection();
 
-			PreparedStatement getCountstatement=connection.prepareStatement("SELECT listened_count FROM activity where album_id= ? and user_id= ?");
+			PreparedStatement getCountstatement=connection.prepareStatement("SELECT listened_count FROM activity where track_id= ? and user_id= ?");
 
-            getCountstatement.setInt(1, album_id);
+            getCountstatement.setInt(1, track_id);
 
             getCountstatement.setInt(2, user_id);
 
@@ -236,38 +235,43 @@ public class DAOImpli implements DAOInter {
 
 			connection=ConnectionManager.getConnection();
 
-			PreparedStatement setStatusStatement=connection.prepareStatement("UPDATE activity SET status = ? WHERE track_id=? and user_id=?");
+            Optional<user_activity> doesExist= getActivityByTrackId(track_id,user.getId());
 
-            setStatusStatement.setInt(1, track_id);
+            if(doesExist.isPresent()){
 
-            setStatusStatement.setInt(2, status);
+            
 
-            setStatusStatement.setInt(3, user.getId());
+			    PreparedStatement setStatusStatement=connection.prepareStatement("UPDATE activity SET status = ? WHERE track_id=? and user_id=?");
 
-			int results= setStatusStatement.executeUpdate();
+                setStatusStatement.setInt(1, status);
+                setStatusStatement.setInt(2, track_id);
+                setStatusStatement.setInt(3, user.getId());
 
-			if(results>-1){
+			    int results= setStatusStatement.executeUpdate();
 
-                String status_message=""; 
+			    if(results>-1){
 
-                switch (status) {
-                    case 1:
-                        status_message = "Not Completed";
-                        break;
+                    String status_message=""; 
+
+                    switch (status) {
+                     case 1:
+                            status_message = "Not Completed";
+                            break;
                     
-                    case 2:
-                        status_message="In Progress";
-                        break;
-                    case 3: 
-                        status_message= "Completed";
-                        break;
+                        case 2:
+                            status_message="In Progress";
+                            break;
+                      case 3: 
+                            status_message= "Completed";
+                            break;
                 }
                 
-                System.out.printf("Status changed on Tracker %d to %s",track_id,status_message);
+                    System.out.printf("Status changed on Tracker %d to %s",track_id,status_message);
 
-			    return true;
+			        return true;
+              }
+            
             }
-                
             
 		}catch(SQLException e){
 			System.out.println(e.getMessage());
@@ -275,7 +279,7 @@ public class DAOImpli implements DAOInter {
 			e.printStackTrace();
 		}
 
-
+    
         return false;
     }
 
@@ -288,7 +292,7 @@ public class DAOImpli implements DAOInter {
 
 			PreparedStatement createTrackerStatement=connection.prepareStatement("INSERT INTO activity values(?,?,?,?,?,?)");
 
-            createTrackerStatement.setInt(1, activity.getTrack_id());
+            createTrackerStatement.setNull(1, java.sql.Types.INTEGER);
 
             createTrackerStatement.setInt(2, activity.getUser_id());
 
@@ -366,9 +370,9 @@ public class DAOImpli implements DAOInter {
 
 
     @Override
-    public boolean addAlbum(music_album album){
+    public boolean addAlbum(music_album album,boolean admin_access){
 
-
+     if(admin_access){
         try{
 
 			connection=ConnectionManager.getConnection();
@@ -399,6 +403,9 @@ public class DAOImpli implements DAOInter {
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+    }else{
+        System.out.println("NO ACCESS");
+    }
 
 
         return false;
@@ -465,11 +472,14 @@ public class DAOImpli implements DAOInter {
 
 
             if(songCount>=count){
-                PreparedStatement setCountStatement=connection.prepareStatement("UPDATE activity SET listened = ? WHERE track_id=? and user_id=?");
+                PreparedStatement setCountStatement=connection.prepareStatement("UPDATE activity SET listened_count = ? WHERE track_id=? and user_id=?");
 
-                setCountStatement.setInt(1, track_id);
+               
+                setCountStatement.setInt(1, count);
+                
+                setCountStatement.setInt(2, track_id);
 
-                setCountStatement.setInt(2, user.getId());
+                setCountStatement.setInt(3, user.getId());
 
 			    int results= setCountStatement.executeUpdate();
 
@@ -524,7 +534,7 @@ public class DAOImpli implements DAOInter {
             if(allowed){
                 PreparedStatement setCountStatement=connection.prepareStatement("UPDATE user SET user_pass = ? WHERE user_id=?");
 
-                setCountStatement.setInt(1, Password_Handler.password_worker_access(password));
+                setCountStatement.setString(1, Password_Handler.password_worker_access(password));
 
                 setCountStatement.setInt(2, user.getId());
 
@@ -555,7 +565,7 @@ public class DAOImpli implements DAOInter {
 
          try{
             
-            int existing;
+            int existing=-1;
 			connection=ConnectionManager.getConnection();
 
 
@@ -579,9 +589,9 @@ public class DAOImpli implements DAOInter {
             
 
             if(existing == 0){
-                PreparedStatement createUserPreparedStatement=connection.prepareStatement("Insert INTO user Values(NULL,?,?,?,?,?);");
+                PreparedStatement createUserPreparedStatement=connection.prepareStatement("Insert INTO user Values(NULL,?,?,?,?,?)");
 
-                createUserPreparedStatement.setString(1, user_name));
+                createUserPreparedStatement.setString(1, user_name);
 
                 createUserPreparedStatement.setString(2, Password_Handler.password_worker_access(securityAns));
 
@@ -589,7 +599,7 @@ public class DAOImpli implements DAOInter {
 
                 createUserPreparedStatement.setDate(4, Date.valueOf(LocalDate.now()));
 
-                createUserPreparedStatement.setInt(5, 0);
+                createUserPreparedStatement.setBoolean(5, false);
 
 
 			    int results= createUserPreparedStatement.executeUpdate();
@@ -609,7 +619,7 @@ public class DAOImpli implements DAOInter {
 		}catch(SQLException e){
 			System.out.println(e.getMessage());
 		}catch(userAlreadyExists e){
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }catch(Exception e){
 			e.printStackTrace();
 		}
@@ -619,34 +629,215 @@ public class DAOImpli implements DAOInter {
         return false;
     }
 
-    public boolean makeAdminUser(String user_name, String password,String securityAns) throws userAlreadyExists{
+    public boolean makeAdminUser(String user_name, String password,String securityAns,String admString) throws userAlreadyExists{
 
+
+         try{
+            if(Password_Handler.password_Checker_Access_Admin(admString)){
+                int existing=-1;
+			    connection=ConnectionManager.getConnection();
+
+
+                PreparedStatement getUsernameStatement= connection.prepareStatement("SELECT COUNT(user_name) FROM user WHERE user_name= ?");
+
+
+
+                getUsernameStatement.setString(1,user_name);
+
+                ResultSet username= getUsernameStatement.executeQuery();
+
+             if(username.next()){
+                    existing = username.getInt(1);
+             }
+
+
+                if(existing == 0){
+                    PreparedStatement createADMINUserPreparedStatement=connection.prepareStatement("Insert INTO user Values(NULL,?,?,?,?,?)");
+
+                    createADMINUserPreparedStatement.setString(1, user_name);
+
+                    createADMINUserPreparedStatement.setString(2, Password_Handler.password_worker_access(securityAns));
+
+                    createADMINUserPreparedStatement.setString(3, Password_Handler.password_worker_access(password));
+
+                    createADMINUserPreparedStatement.setDate(4, Date.valueOf(LocalDate.now()));
+
+                    createADMINUserPreparedStatement.setBoolean(5, true);
+
+
+			        int results= createADMINUserPreparedStatement.executeUpdate();
+
+			        if(results>-1){
+
+                        System.out.printf("User Created, Please Log in");
+
+			         return true;
+                 }
+                }else{
+                 throw new userAlreadyExists(user_name);
+                }
+            }else{
+                System.out.println("INVALID ADMIN ACCESS CODE");
+            }
+            
+            
+		}catch(SQLException e){
+			System.out.println(e.getMessage());
+		}catch(userAlreadyExists e){
+            System.out.println(e.getMessage());
+        }catch(Exception e){
+			e.printStackTrace();
+		}
+
+
+
+
+
+        return false;
+    }
+
+    public Optional<Normal_User> logIn(String username,String password) throws userExceedPasswordAttempts{
+        
+        try{
+            if(Password_Handler.password_checker_access(password, username)){    
+		        connection=ConnectionManager.getConnection();
+           
+                PreparedStatement loginPreparedStatement=connection.prepareStatement("SELECT * FROM user WHERE user_name= ?");
+
+                loginPreparedStatement.setString(1, username);
+               
+
+               
+
+			    ResultSet results= loginPreparedStatement.executeQuery();
+
+                if(results.next()){
+                    int id=results.getInt(1);
+                    String user_name= results.getString(2);
+                    String user_ans= results.getString(3);
+                    String user_pass = results.getString(4);
+                    LocalDate user_create = results.getDate(5).toLocalDate();
+                    boolean admin_access= results.getBoolean(6);
+                    
+                    Normal_User loggedIn = new Normal_User(user_name, user_pass, user_ans,user_create,id,admin_access);
+
+                    return Optional.of(loggedIn);
+                   
+                }
+            }
+		}catch(SQLException e){
+			System.out.println(e.getMessage());
+        }catch(Exception e){
+			e.printStackTrace();
+		}
+
+
+        return Optional.empty();
 
         
-
-
-
-
-        return false;
     }
 
-    public boolean logIn(Normal_User user) throws userExceedPasswordAttempts{
-        return false;
-    }
-
-    public boolean logOut(Normal_User user){
-        return false;
-    }
+    
 
     public int numberofUsers(boolean admin){
+
+        if(admin){
+
+            try{
+            
+		        connection=ConnectionManager.getConnection();
+           
+                PreparedStatement countUsersPreparedStatement=connection.prepareStatement("SELECT COUNT(user_id) FROM user");
+
+			    ResultSet results= countUsersPreparedStatement.executeQuery();
+
+                if(results.next()){
+
+                    return results.getInt(1);
+                   
+                }
+		    }catch(SQLException e){
+			System.out.println(e.getMessage());
+            }catch(Exception e){
+			    e.printStackTrace();
+		    }
+
+        }else{
+            System.out.println("NO ACCESS");
+        }
+
+
+
         return -1;
     }
 
-    public LocalDate allUsercreatedDates(boolean admin){
-        return LocalDate.MIN;
+    public ArrayList<LocalDate> allUsercreatedDates(boolean admin){
+
+        ArrayList<LocalDate> date_created= new ArrayList<LocalDate>();
+
+        if(admin){
+
+            try{
+            
+		        connection=ConnectionManager.getConnection();
+           
+                PreparedStatement allUsersPreparedStatement=connection.prepareStatement("SELECT user_made FROM user");
+
+			    ResultSet results= allUsersPreparedStatement.executeQuery();
+
+                while(results.next()){
+
+                    date_created.add(results.getDate(1).toLocalDate());
+                   
+                }
+
+                return date_created;
+		    }catch(SQLException e){
+			System.out.println(e.getMessage());
+            }catch(Exception e){
+			    e.printStackTrace();
+		    }
+
+        }else{
+            System.out.println("NO ACCESS");
+        }
+
+
+
+    
+
+
+        return date_created;
     }
 
-    public boolean renameUsername(Normal_User user){
+    public boolean renameUsername(Normal_User user,String userName){
+
+      
+        try{
+            
+		        connection=ConnectionManager.getConnection();
+           
+                PreparedStatement renameUserPreparedStatement=connection.prepareStatement("UPDATE user SET user_name = ? WHERE user_id=?");
+
+                renameUserPreparedStatement.setString(1, userName);
+                renameUserPreparedStatement.setInt(2, user.getId());
+
+
+			    int results= renameUserPreparedStatement.executeUpdate();
+
+                if(results>-1){
+                    System.out.println("USERNAME CHANGED TO "+ userName);
+                    return true;
+                }
+
+                return true;
+		    }catch(SQLException e){
+			System.out.println(e.getMessage());
+            }catch(Exception e){
+			    e.printStackTrace();
+		    }
+
+
         return false;
     }
 

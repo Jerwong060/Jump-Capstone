@@ -38,13 +38,13 @@ public class Password_Handler {
         return password_checker_Admin(plaintext);
     }
 
-    public static Boolean password_checker_access(String plaintext,int user_id){
-       return password_checker(plaintext,user_id);
+    public static Boolean password_checker_access(String plaintext,String user_name){
+       return password_checker_pass(plaintext,user_name);
     }
 
 
     public static boolean password_checker_access_ans(String query, String ansDatabase){
-        return password_checker(query, ansDatabase);
+        return password_checker_ans(query, ansDatabase);
     }
 
     private static String password_worker(String plaintext){
@@ -57,7 +57,7 @@ public class Password_Handler {
 
 
     private static boolean password_checker_Admin(String plaintext){
-        String hashedResult="$2a$12$Dq08YVJyKozOCkNrDTaNzu7xTJPFdCKbX8nlwRstVZHw3KysVWo2q";
+        String hashedResult="$2a$12$bpZyovdmMSR1Y7.dWk.dj.THvuQdfjdvDFnQC3eZzOSMZIYmg85Ni";
         
         BCrypt.Result checkPassword = BCrypt.verifyer().verify(plaintext.toCharArray(),hashedResult);
 
@@ -65,15 +65,15 @@ public class Password_Handler {
     }
 
 
-    private static boolean password_checker(String plaintext,int user_id){
+    private static boolean password_checker_pass(String plaintext,String user_name){
         String hashedResult=" ";
         try {
 
             connection=ConnectionManager.getConnection();
 
-            PreparedStatement getPasswordPreparedStatement = connection.prepareStatement("Select user_pass from user where user_id = ?");
+            PreparedStatement getPasswordPreparedStatement = connection.prepareStatement("Select user_pass from user where user_name= ?");
 
-            getPasswordPreparedStatement.setInt(1, user_id);
+            getPasswordPreparedStatement.setString(1, user_name);
 
             ResultSet results= getPasswordPreparedStatement.executeQuery();
 
@@ -84,7 +84,6 @@ public class Password_Handler {
             }
             
 
-            closeConnection();
         } catch(SQLException e){
             System.out.println(e.getMessage());
         }catch (Exception e) {
@@ -98,7 +97,7 @@ public class Password_Handler {
     }
 
 
-    private static boolean password_checker(String plaintext,String answer){
+    private static boolean password_checker_ans(String plaintext,String answer){
 
         BCrypt.Result checkPassword = BCrypt.verifyer().verify(plaintext.toCharArray(),answer);
 
