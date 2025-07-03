@@ -12,7 +12,6 @@ import java.util.Optional;
 
 import com.jump.capstone.connection.ConnectionManager;
 import com.jump.capstone.exceptions.userAlreadyExists;
-import com.jump.capstone.exceptions.userExceedPasswordAttempts;
 import com.jump.capstone.music.music_album;
 import com.jump.capstone.security.Password_Handler;
 import com.jump.capstone.user.Normal_User;
@@ -237,73 +236,6 @@ public class DAOImpli implements DAOInter {
     }
 
 
-    @Override
-
-    public Double getAvgListened(int user_id){
-     
-         try{
-
-			connection=ConnectionManager.getConnection();
-
-			PreparedStatement getAVGStatement=connection.prepareStatement("SELECT AVG(listened_percent) FROM activity where user_id= ?");
-
-            getAVGStatement.setInt(1, user_id);
-
-			ResultSet results= getAVGStatement.executeQuery();
-
-			if(results.next()){
-                
-                double listened_percent = results.getDouble(1);
-
-			    return listened_percent;
-            }
-                
-            
-		}catch(SQLException e){
-			System.out.println(e.getMessage());
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-
-        
-        return 000.00;
-    }
-    
-    @Override
-    public int getListened_count(int track_id,int user_id){
-
-    try{
-
-			connection=ConnectionManager.getConnection();
-
-			PreparedStatement getCountstatement=connection.prepareStatement("SELECT listened_count FROM activity where track_id= ? and user_id= ?");
-
-            getCountstatement.setInt(1, track_id);
-
-            getCountstatement.setInt(2, user_id);
-
-			ResultSet results= getCountstatement.executeQuery();
-
-			if(results.next()){
-                
-                int listened_track = results.getInt(1);
-
-			    return listened_track;
-            }
-                
-            
-		}catch(SQLException e){
-			System.out.println(e.getMessage());
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-
-
-
-        return -1;
-    }
-
-    
     @Override
     public boolean setStatus(int track_id,int status,Normal_User user){
 
@@ -674,7 +606,7 @@ public class DAOImpli implements DAOInter {
         return false;
     }
 
-    public boolean makeNormalUser(String user_name, String password,String securityAns) throws userAlreadyExists{
+    public boolean makeNormalUser(String user_name, String password,String securityAns){
 
          try{
             
@@ -742,7 +674,7 @@ public class DAOImpli implements DAOInter {
         return false;
     }
 
-    public boolean makeAdminUser(String user_name, String password,String securityAns,String admString) throws userAlreadyExists{
+    public boolean makeAdminUser(String user_name, String password,String securityAns,String admString){
 
 
          try{
@@ -805,11 +737,11 @@ public class DAOImpli implements DAOInter {
 
 
 
-
+        System.out.println("User Creation Failed");
         return false;
     }
 
-    public Optional<Normal_User> logIn(String username,String password) throws userExceedPasswordAttempts{
+    public Optional<Normal_User> logIn(String username,String password){
         
         try{
             if(Password_Handler.password_checker_access(password, username)){    
