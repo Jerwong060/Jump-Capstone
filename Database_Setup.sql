@@ -44,7 +44,7 @@ CREATE TABLE activity(
     album_id INT NOT NULL, -- fk
     status INT NOT NULL,
     listened_count INT DEFAULT 0,
-    listened_percent DOUBLE(5,2) DEFAULT 000.00 CHECK (listened_percent BETWEEN 000.00 and 100.00),
+    total_songs INT DEFAULT 0,
     CONSTRAINT fk_album_id 
       FOREIGN KEY( album_id )
       REFERENCES album( album_id )

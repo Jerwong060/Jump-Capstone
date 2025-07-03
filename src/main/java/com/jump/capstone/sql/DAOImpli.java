@@ -52,14 +52,13 @@ public class DAOImpli implements DAOInter {
 
 			while(results.next()){
                 
-                int track_id = results.getInt(1);
                 int user = results.getInt(2);
                 int album_id= results.getInt(3);
                 int status = results.getInt(4);
                 int listened_count= results.getInt(5);
-                double listened_percent = results.getDouble(6);
+                int total_songs = results.getInt(6);
 
-				user_activity activity= new user_activity(user, album_id, status, listened_count, listened_percent);
+				user_activity activity= new user_activity(user, album_id, status, listened_count, total_songs);
 
 				allActivity.add(activity);
 			}
@@ -71,6 +70,84 @@ public class DAOImpli implements DAOInter {
 		}
 
 		return null;
+    }
+
+    @Override
+    public List<music_album> listAllalbums(){
+        List<music_album> allAlbums= new ArrayList<>();
+
+        try{
+
+			connection=ConnectionManager.getConnection();
+
+			PreparedStatement getAllAlbumsStatement=connection.prepareStatement("SELECT * FROM album");
+
+           
+
+			ResultSet results= getAllAlbumsStatement.executeQuery();
+
+			while(results.next()){
+                int id= results.getInt(1);
+                String artist= results.getString(2);
+                String album_name= results.getString(3);
+                int song_count= results.getInt(4);
+                int rating_count= results.getInt(5);
+                String genre= results.getString(6);
+                Double rating_percent= results.getDouble(7);
+                LocalDate date_released= results.getDate(9).toLocalDate();
+
+                music_album album=new music_album(id, artist, album_name,song_count,rating_count,genre,rating_percent,date_released);
+
+                allAlbums.add(album);
+
+				
+			}
+		}catch(SQLException e){
+			System.out.println(e.getMessage());
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+
+        return allAlbums;
+    }
+
+    @Override
+    public Optional<music_album> getAlbumByid(int album_id){
+
+        try{
+
+			connection=ConnectionManager.getConnection();
+
+			PreparedStatement getAlbumIDStatement=connection.prepareStatement("SELECT * FROM album WHERE album_id= ?");
+
+            getAlbumIDStatement.setInt(1, album_id);
+           
+
+			ResultSet results= getAlbumIDStatement.executeQuery();
+
+			while(results.next()){
+                int id= results.getInt(1);
+                String artist= results.getString(2);
+                String album_name= results.getString(3);
+                int song_count= results.getInt(4);
+                int rating_count= results.getInt(5);
+                String genre= results.getString(6);
+                Double rating_percent= results.getDouble(7);
+                LocalDate date_released= results.getDate(9).toLocalDate();
+
+                music_album album=new music_album(id, artist, album_name,song_count,rating_count,genre,rating_percent,date_released);
+
+                return Optional.of(album);
+
+				
+			}
+		}catch(SQLException e){
+			System.out.println(e.getMessage());
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+
+        return Optional.empty();
     }
 
     @Override
@@ -94,9 +171,9 @@ public class DAOImpli implements DAOInter {
                 int album_id= results.getInt(3);
                 int status = results.getInt(4);
                 int listened_count= results.getInt(5);
-                double listened_percent = results.getDouble(6);
+                int total_songs = results.getInt(6);
 
-			    activity= new user_activity(track_id, user, album_id, status, listened_count, listened_percent);
+			    activity= new user_activity(track_id, user, album_id, status, listened_count, total_songs);
 
 			
 			    return Optional.of(activity);
@@ -140,9 +217,9 @@ public class DAOImpli implements DAOInter {
                 int track_id = results.getInt(1);
                 int album_id= results.getInt(3);
                 int listened_count= results.getInt(5);
-                double listened_percent = results.getDouble(6);
+                int total_songs = results.getInt(6);
 
-				user_activity activity= new user_activity(track_id, user_id, album_id, status, listened_count, listened_percent);
+				user_activity activity= new user_activity(track_id, user_id, album_id, status, listened_count, total_songs);
 
 				byStatus.add(activity);
 			}
@@ -302,7 +379,7 @@ public class DAOImpli implements DAOInter {
 
             createTrackerStatement.setInt(5, activity.getListened_count());
 
-            createTrackerStatement.setDouble(6, activity.getListened_percent());
+            createTrackerStatement.setInt(6, activity.getTotal_songs());
 
 
 			int results= createTrackerStatement.executeUpdate();
@@ -442,6 +519,42 @@ public class DAOImpli implements DAOInter {
 
 
 
+
+
+        return false;
+    }
+
+    @Override
+    public boolean giveRating(int album_id,Double rating){
+
+        try{
+            
+                PreparedStatement setRatingStatement=connection.prepareStatement(
+                    "UPDATE album SET album_rating = ?, album_ratingcount= album_ratingcount + 1  WHERE album_id=?");
+
+               
+                setRatingStatement.setDouble(1, rating);
+                
+                setRatingStatement.setInt(2, album_id);
+
+                
+			    int results= setRatingStatement.executeUpdate();
+
+			    if(results>-1){
+
+                    System.out.printf("Rating changed");
+
+			        return true;
+                }
+            
+			
+                
+            
+		}catch(SQLException e){
+			System.out.println(e.getMessage());
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 
 
         return false;

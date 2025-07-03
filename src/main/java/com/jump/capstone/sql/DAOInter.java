@@ -36,7 +36,13 @@ public Optional<music_album> getAlbumInfo(int album_id);
 
 public boolean addAlbum(music_album album,boolean admin_access);
 
+public List<music_album> listAllalbums();
+
+public Optional<music_album> getAlbumByid(int album_id);
+
 public boolean deleteTrack(int track_id,Normal_User user);
+
+public boolean giveRating(int album_id,Double rating);
 
 public boolean setListened_count(int track_id,int count,Normal_User user);
 
@@ -47,8 +53,6 @@ public boolean makeNormalUser(String user_name, String password,String securityA
 public boolean makeAdminUser(String user_name, String password,String securityAns,String admString) throws userAlreadyExists;
 
 public Optional<Normal_User> logIn(String username,String password) throws userExceedPasswordAttempts;
-
-
 
 public int numberofUsers(boolean admin);
 

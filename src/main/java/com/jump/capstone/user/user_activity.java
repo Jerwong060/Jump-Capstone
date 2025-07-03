@@ -8,27 +8,27 @@ public class user_activity {
     private int album_id;
     private int status;
     private int listened_count;
-    private double listened_percent;
+    private int total_songs;
     
     public user_activity(int user_id, int album_id, int status, int listened_count,
-        double listened_percent) {
+        int total_songs) {
         this.track_id = track_id++;
         this.user_id = user_id;
         this.album_id = album_id;
         this.status = status;
         this.listened_count = listened_count;
-        this.listened_percent = listened_percent;
+        this.total_songs=total_songs;
     }
 
 
      public user_activity(int tracker_id,int user_id, int album_id, int status, int listened_count,
-        double listened_percent) {
+        int total_songs) {
         this.track_id = tracker_id;
         this.user_id = user_id;
         this.album_id = album_id;
         this.status = status;
         this.listened_count = listened_count;
-        this.listened_percent = listened_percent;
+        this.total_songs=total_songs;
     }
 
 
@@ -60,12 +60,12 @@ public class user_activity {
         this.listened_count = listened_count;
     }
 
-    public double getListened_percent() {
-        return listened_percent;
+    public int getTotal_songs() {
+        return  total_songs;
     }
 
-    public void setListened_percent(double listened_percent) {
-        this.listened_percent = listened_percent;
+    public void setTotal_songs(int total_songs) {
+        this.total_songs = total_songs;
     }
 
 
@@ -77,7 +77,7 @@ public class user_activity {
     @Override
     public String toString() {
         return "user_activity [track_id=" + track_id + ", user_id=" + user_id + ", album_id=" + album_id + ", status="
-                + status + ", listened_count=" + listened_count + ", listened_percent=" + listened_percent + "]";
+                + status + ", listened_count=" + listened_count + ", total_songs=" + total_songs + "]";
     }
 
 
