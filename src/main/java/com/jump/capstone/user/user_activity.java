@@ -77,11 +77,14 @@ public class user_activity {
 
     @Override
     public String toString() {
-        DAOInter user_info= new DAOImpli();
-        String username =  
+        DAOInter info= new DAOImpli();
+        String username =  info.getAccountUser(user_id);
+        String album_name= info.getAlbumByid(album_id).get().getAlbum_name();
+        double percent_listened = ((double)listened_count/(double)total_songs)*100;
 
-        return "track_id=" + track_id + ", Owner=" + username + ", album_id=" + album_id + ", Album Name: " + +", status="
-                + status + ", listened_count=" + listened_count + ", total_songs=" + total_songs + "Percent Listened: "+ listened_count/total_songs + "\n";
+        return "track_id=" + track_id + ", Owner=" + username + ", album_id=" + album_id + ", Album Name: " + album_name +", status="
+                + status + ", listened_count=" + listened_count + ", total_songs=" + total_songs + ", Percent Listened: "+ String.format("%.2f", percent_listened)
+                 + "\n";
     }
 
 

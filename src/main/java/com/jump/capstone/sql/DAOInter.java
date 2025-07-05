@@ -20,7 +20,7 @@ public Optional<user_activity> getActivityByTrackId(int TrackId,int user_id);
 
 public List<user_activity> getActivityByStatus(int status,int user_id);
 
-public Optional<Normal_User> getAccountInfo(int user_id);
+public String getAccountUser(int user_id);
 
 public boolean setStatus(int track_id,int status,Normal_User user);
 

@@ -224,6 +224,41 @@ public class DAOImpli implements DAOInter {
 
 
     @Override
+
+    public String getAccountUser(int user_id){
+
+         try{
+
+			connection=ConnectionManager.getConnection();
+
+			PreparedStatement getUserInfoStatement=connection.prepareStatement("SELECT * FROM user WHERE user_id=?");
+
+            
+            getUserInfoStatement.setInt(1, user_id);
+
+			ResultSet results= getUserInfoStatement.executeQuery();
+
+			if(results.next()){
+                String user_name = results.getString(2);
+			
+			    return user_name;
+            }
+                
+            
+		}catch(SQLException e){
+			System.out.println(e.getMessage());
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+
+
+
+
+        return " ";
+    }
+    
+
+    @Override
     public boolean setStatus(int track_id,int status,Normal_User user){
 
         
@@ -834,7 +869,7 @@ public class DAOImpli implements DAOInter {
     }
 
 
-    
+
 
     @Override
     public void logOut(){
