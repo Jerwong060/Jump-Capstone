@@ -1,5 +1,7 @@
 package com.jump.capstone.user;
 
+import com.jump.capstone.sql.*;
+
 public class user_activity {
 
 
@@ -73,11 +75,13 @@ public class user_activity {
         return user_id;
     }
 
-
     @Override
     public String toString() {
-        return "user_activity [track_id=" + track_id + ", user_id=" + user_id + ", album_id=" + album_id + ", status="
-                + status + ", listened_count=" + listened_count + ", total_songs=" + total_songs + "]";
+        DAOInter user_info= new DAOImpli();
+        String username =  
+
+        return "track_id=" + track_id + ", Owner=" + username + ", album_id=" + album_id + ", Album Name: " + +", status="
+                + status + ", listened_count=" + listened_count + ", total_songs=" + total_songs + "Percent Listened: "+ listened_count/total_songs + "\n";
     }
 
 

@@ -2,7 +2,7 @@ package com.jump.capstone.sql;
 
 
 
-import java.sql.SQLException;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -12,9 +12,7 @@ import com.jump.capstone.music.music_album;
 
 public interface DAOInter {
 
-public void makeConnection() throws ClassNotFoundException,SQLException;
 
-public void closeConnection() throws ClassNotFoundException,SQLException;
 
 public List<user_activity> getAllActivity(int userId);
 
@@ -22,11 +20,12 @@ public Optional<user_activity> getActivityByTrackId(int TrackId,int user_id);
 
 public List<user_activity> getActivityByStatus(int status,int user_id);
 
+public Optional<Normal_User> getAccountInfo(int user_id);
+
 public boolean setStatus(int track_id,int status,Normal_User user);
 
 public boolean createNewTrack(user_activity activity);
 
-public Optional<music_album> getAlbumInfo(int album_id);
 
 public boolean addAlbum(music_album album,boolean admin_access);
 
@@ -53,5 +52,6 @@ public List<LocalDate> allUsercreatedDates(boolean admin);
 
 public boolean renameUsername(Normal_User user,String userName);
 
+public void logOut();
 
 }

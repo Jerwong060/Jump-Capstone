@@ -21,20 +21,7 @@ public class DAOImpli implements DAOInter {
 
     private Connection connection = null;
 
-	@Override
-	public void makeConnection() throws ClassNotFoundException, SQLException {
-		
-		if(connection == null) {
-			connection = ConnectionManager.getConnection();
-		}
-	}
 	
-	@Override
-	public void closeConnection() throws SQLException {
-		connection.close();
-	}
-
-
     @Override
     public List<user_activity> getAllActivity(int user_id){
         List<user_activity> allActivity = new ArrayList<>();
@@ -50,14 +37,14 @@ public class DAOImpli implements DAOInter {
 			ResultSet results= getAllStatement.executeQuery();
 
 			while(results.next()){
-                
+                int track_id= results.getInt(1);
                 int user = results.getInt(2);
                 int album_id= results.getInt(3);
                 int status = results.getInt(4);
                 int listened_count= results.getInt(5);
                 int total_songs = results.getInt(6);
 
-				user_activity activity= new user_activity(user, album_id, status, listened_count, total_songs);
+				user_activity activity= new user_activity(track_id,user, album_id, status, listened_count, total_songs);
 
 				allActivity.add(activity);
 			}
@@ -93,7 +80,7 @@ public class DAOImpli implements DAOInter {
                 int rating_count= results.getInt(5);
                 String genre= results.getString(6);
                 Double rating_percent= results.getDouble(7);
-                LocalDate date_released= results.getDate(9).toLocalDate();
+                LocalDate date_released= results.getDate(8).toLocalDate();
 
                 music_album album=new music_album(id, artist, album_name,song_count,rating_count,genre,rating_percent,date_released);
 
@@ -132,7 +119,7 @@ public class DAOImpli implements DAOInter {
                 int rating_count= results.getInt(5);
                 String genre= results.getString(6);
                 Double rating_percent= results.getDouble(7);
-                LocalDate date_released= results.getDate(9).toLocalDate();
+                LocalDate date_released= results.getDate(8).toLocalDate();
 
                 music_album album=new music_album(id, artist, album_name,song_count,rating_count,genre,rating_percent,date_released);
 
@@ -275,7 +262,7 @@ public class DAOImpli implements DAOInter {
                             break;
                 }
                 
-                    System.out.printf("Status changed on Tracker %d to %s",track_id,status_message);
+                    System.out.printf("Status changed on Tracker %d to %s\n",track_id,status_message);
 
 			        return true;
               }
@@ -335,47 +322,7 @@ public class DAOImpli implements DAOInter {
         return false;
     }
 
-    @Override
-    public Optional<music_album> getAlbumInfo(int album_id){
-
-        music_album album;
-
-         try{
-
-			connection=ConnectionManager.getConnection();
-
-			PreparedStatement getAlbumStatement=connection.prepareStatement("SELECT * FROM album where album_id = ? ");
-
-            getAlbumStatement.setInt(1, album_id);
-
-			ResultSet results= getAlbumStatement.executeQuery();
-
-			if(results.next()){
-                String album_artist = results.getString(2);
-                String album_name = results.getString(3);
-                int album_songcount = results.getInt(4);
-                int album_ratingcount = results.getInt(5);
-                String album_genre= results.getString(6);
-                Double album_rating = results.getDouble(7);
-                LocalDate album_release = results.getDate(8).toLocalDate();
-
-			   album=new music_album(album_id, album_artist, album_name, album_songcount, album_ratingcount, album_genre, album_rating, album_release);
-
-			
-			    return Optional.of(album);
-            }
-                
-            
-		}catch(SQLException e){
-			System.out.println(e.getMessage());
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-
-
-
-        return Optional.empty();
-    }
+   
 
 
     @Override
@@ -530,7 +477,7 @@ public class DAOImpli implements DAOInter {
 
 			    if(results>-1){
 
-                    System.out.printf("Status changed on Tracker %d to %s",track_id,count);
+                    System.out.printf("Changed Song Count to %d\n", count);
 
 			        return true;
                 }
@@ -651,7 +598,7 @@ public class DAOImpli implements DAOInter {
 
 			    if(results>-1){
 
-                    System.out.printf("User Created, Please Log in");
+                    System.out.printf("User Created, Please Log in\n");
 
 			        return true;
                 }
@@ -714,7 +661,7 @@ public class DAOImpli implements DAOInter {
 
 			        if(results>-1){
 
-                        System.out.printf("User Created, Please Log in");
+                        System.out.printf("User Created, Please Log in\n");
 
 			         return true;
                  }
@@ -886,6 +833,16 @@ public class DAOImpli implements DAOInter {
         return false;
     }
 
+
     
+
+    @Override
+    public void logOut(){
+        try {
+            ConnectionManager.closeConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
