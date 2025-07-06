@@ -799,7 +799,7 @@ public class DAOImpli implements DAOInter {
             if(Password_Handler.password_checker_access(password, username)){    
 		        connection=ConnectionManager.getConnection();
            
-                PreparedStatement loginPreparedStatement=connection.prepareStatement("SELECT * FROM user WHERE user_name= ?");
+                PreparedStatement loginPreparedStatement=connection.prepareStatement("SELECT * FROM user WHERE user_name= ? COLLATE utf8mb4_0900_as_cs");
 
                 loginPreparedStatement.setString(1, username);
                
