@@ -26,7 +26,6 @@ public boolean setStatus(int track_id,int status,Normal_User user);
 
 public boolean createNewTrack(user_activity activity);
 
-
 public boolean addAlbum(music_album album,boolean admin_access);
 
 public List<music_album> listAllalbums();
@@ -40,7 +39,8 @@ public boolean giveRating(int album_id,Double rating);
 public boolean setListened_count(int track_id,int count,Normal_User user);
 
 public boolean changePasswordLoggedIn(String password,Normal_User user);
-public boolean changePasswordBootScreen(String password,String answer,Normal_User user);
+public boolean checkSecurityQuestion(String answer,String user_name);
+public boolean changePasswordBootScreen(String password,String name);
 
 public boolean makeNormalUser(String user_name, String password,String securityAns);
 public boolean makeAdminUser(String user_name, String password,String securityAns,String admString);

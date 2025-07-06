@@ -444,7 +444,7 @@ public class DAOImpli implements DAOInter {
         try{
             
                 PreparedStatement setRatingStatement=connection.prepareStatement(
-                    "UPDATE album SET album_rating = ?, album_ratingcount= album_ratingcount + 1  WHERE album_id=?");
+                    "UPDATE album SET album_rating = (?+album_rating)/(album_ratingcount+1), album_ratingcount= album_ratingcount + 1  WHERE album_id=?");
 
                
                 setRatingStatement.setDouble(1, rating);
@@ -456,7 +456,7 @@ public class DAOImpli implements DAOInter {
 
 			    if(results>-1){
 
-                    System.out.printf("Rating changed");
+                    System.out.printf("Rating changed\n");
 
 			        return true;
                 }
@@ -601,25 +601,24 @@ public class DAOImpli implements DAOInter {
     }
 
 
-    @Override
-    public boolean changePasswordBootScreen(String password,String answer,Normal_User user){
-
-     try{
+    @Override 
+    public boolean checkSecurityQuestion(String answer,String user_name){
+        try{
             boolean allowed=false;
 
 			connection=ConnectionManager.getConnection();
 
 
-           PreparedStatement getAnsStatement= connection.prepareStatement("SELECT user_ans FROM user WHERE user_id = ?");
+           PreparedStatement getAnsStatement= connection.prepareStatement("SELECT user_ans FROM user WHERE user_name = ?");
 
-            getAnsStatement.setInt(1,user.getId());
+            getAnsStatement.setString(1,user_name);
 
             ResultSet securityAns= getAnsStatement.executeQuery();
 
 
             
             while (securityAns.next()) {
-                if(Password_Handler.password_checker_access_ans(answer, user.getSecurityAnswer())){
+                if(Password_Handler.password_checker_access_ans(answer, securityAns.getString(1))){
                 
                     allowed=true;
                 }     
@@ -629,11 +628,34 @@ public class DAOImpli implements DAOInter {
             
 
             if(allowed){
-                PreparedStatement setPassStatement=connection.prepareStatement("UPDATE user SET user_pass = ? WHERE user_id=?");
+               return true;
+            }
+			
+                
+            
+		}catch(SQLException e){
+			System.out.println(e.getMessage());
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+        return false;
+
+    }
+
+
+
+
+
+    @Override
+    public boolean changePasswordBootScreen(String password,String user_name){
+
+     try{
+            
+                PreparedStatement setPassStatement=connection.prepareStatement("UPDATE user SET user_pass = ? WHERE user_name=?");
 
                 setPassStatement.setString(1, Password_Handler.password_worker_access(password));
 
-                setPassStatement.setInt(2, user.getId());
+                setPassStatement.setString(2, user_name);
 
 			    int results= setPassStatement.executeUpdate();
 
@@ -643,7 +665,7 @@ public class DAOImpli implements DAOInter {
 
 			        return true;
                 }
-            }
+            
 			
                 
             
