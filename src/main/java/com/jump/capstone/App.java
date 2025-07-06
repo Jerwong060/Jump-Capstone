@@ -1,16 +1,13 @@
 package com.jump.capstone;
 
 
-import java.util.List;
 
-import com.jump.capstone.music.music_album;
+import java.util.Scanner;
+
 import com.jump.capstone.user.User_input;
-import com.jump.capstone.sql.*;;
+;
 
-/**
- * Hello world!
- *
- */
+
 public class App 
 {
     public static void main( String[] args )
@@ -20,15 +17,9 @@ public class App
 
     public App(){
 
-       
-       // DAOInter trackerDAO= new DAOImpli();
-      
-
-
-       User_input.user_terminal();
-
-
-
+       Scanner input=new Scanner(System.in);
+       User_input.user_terminal(input);
+       input.close();
 
     }
 }

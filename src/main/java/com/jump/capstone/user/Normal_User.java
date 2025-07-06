@@ -12,6 +12,7 @@ public class Normal_User{
     private int id=0;
     private String securityAnswer;
     
+    //Constructors for Users when first created
     public Normal_User(String user_name, String password,String securityAns,boolean adminAccess){
         this.user_name=user_name;
         this.id=id++;
@@ -21,6 +22,7 @@ public class Normal_User{
         this.admin= adminAccess;
     }
 
+    //Construtor for when ID is not known to user
     public Normal_User(String user_name, String password,String securityAns,LocalDate dateMade,int id,boolean admin_access){
         this.user_name=user_name;
         this.id=id;

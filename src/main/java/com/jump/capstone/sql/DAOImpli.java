@@ -21,7 +21,7 @@ public class DAOImpli implements DAOInter {
 
     private Connection connection = null;
 
-	
+	//gets all the trackers associated with a user, taking in the user_id. 
     @Override
     public List<user_activity> getAllActivity(int user_id){
         List<user_activity> allActivity = new ArrayList<>();
@@ -29,13 +29,13 @@ public class DAOImpli implements DAOInter {
         try{
 
 			connection=ConnectionManager.getConnection();
-
+            //statement for getting all trackers based on ID
 			PreparedStatement getAllStatement=connection.prepareStatement("SELECT * FROM activity where user_id = ? ");
 
             getAllStatement.setInt(1, user_id);
 
 			ResultSet results= getAllStatement.executeQuery();
-
+            //iterates over the results
 			while(results.next()){
                 int track_id= results.getInt(1);
                 int user = results.getInt(2);
@@ -44,6 +44,7 @@ public class DAOImpli implements DAOInter {
                 int listened_count= results.getInt(5);
                 int total_songs = results.getInt(6);
 
+                //creates the user_activity before adding it to arraylist for return
 				user_activity activity= new user_activity(track_id,user, album_id, status, listened_count, total_songs);
 
 				allActivity.add(activity);
@@ -58,6 +59,7 @@ public class DAOImpli implements DAOInter {
 		return null;
     }
 
+    //lists all albums in the database
     @Override
     public List<music_album> listAllalbums(){
         List<music_album> allAlbums= new ArrayList<>();
@@ -97,6 +99,7 @@ public class DAOImpli implements DAOInter {
         return allAlbums;
     }
 
+    //gets back an album's info based on its id, if an invalid id gives back empty optional, if not returns an optional of that album.
     @Override
     public Optional<music_album> getAlbumByid(int album_id){
 
@@ -136,6 +139,7 @@ public class DAOImpli implements DAOInter {
         return Optional.empty();
     }
 
+    //gets tracker back based on the Tracker ID, gives empty optional if not exists. if exists, then optional of that tracker. 
     @Override
     public Optional<user_activity> getActivityByTrackId(int TrackId,int user_id){
         
@@ -181,7 +185,7 @@ public class DAOImpli implements DAOInter {
 
     
 
-
+    //Gets back all tracks with a specific state: not started, in progress, and completed
     @Override
     public List<user_activity> getActivityByStatus(int status,int user_id){
         List<user_activity> byStatus = new ArrayList<>();
@@ -223,8 +227,8 @@ public class DAOImpli implements DAOInter {
     }
 
 
+    //gets back the username of a logged in account. 
     @Override
-
     public String getAccountUser(int user_id){
 
          try{
@@ -258,6 +262,7 @@ public class DAOImpli implements DAOInter {
     }
     
 
+    //sets a status of an already made tracker. Gives back true if status was changed. If not, false.  
     @Override
     public boolean setStatus(int track_id,int status,Normal_User user){
 
@@ -314,6 +319,8 @@ public class DAOImpli implements DAOInter {
         return false;
     }
 
+
+    //makes a new tracker.
     @Override
     public boolean createNewTrack(user_activity activity){
 
@@ -340,7 +347,7 @@ public class DAOImpli implements DAOInter {
 
 			if(results>-1){
 
-                System.out.println(activity.getTrack_id() +" has been created");
+                System.out.println(activity.getTrack_id() +" has been created\n");
 
 			    return true;
             }
@@ -359,7 +366,7 @@ public class DAOImpli implements DAOInter {
 
    
 
-
+    //adds a new album to database, needs admin permissions
     @Override
     public boolean addAlbum(music_album album,boolean admin_access){
 
@@ -384,7 +391,7 @@ public class DAOImpli implements DAOInter {
 			int results= addAlbumStatement.executeUpdate();
 
 			if(results>-1){
-                System.out.printf("%s has been added to the Database", album.getAlbum_name());
+                System.out.printf("%s has been added to the Database\n", album.getAlbum_name());
                 return true;
             }
                 
@@ -395,13 +402,15 @@ public class DAOImpli implements DAOInter {
 			e.printStackTrace();
 		}
     }else{
-        System.out.println("NO ACCESS");
+        System.out.println("NO ACCESS\n");
     }
 
 
         return false;
     }
 
+
+    //deletes a tracker
     @Override
     public boolean deleteTrack(int track_id,Normal_User user){
 
@@ -420,7 +429,7 @@ public class DAOImpli implements DAOInter {
 			int results= deleteTrackStatement.executeUpdate();
 
 			if(results>-1){
-                System.out.printf("%d has been deleted", track_id);
+                System.out.printf("%d has been deleted\n", track_id);
                 return true;
             }
                 
@@ -438,6 +447,7 @@ public class DAOImpli implements DAOInter {
         return false;
     }
 
+    //give a rating to an album. Does an average of rating and also increments the amount of ratings by one.
     @Override
     public boolean giveRating(int album_id,Double rating){
 
@@ -474,6 +484,7 @@ public class DAOImpli implements DAOInter {
         return false;
     }
 
+    //sets the listened songs of an album to another value
     @Override
     public boolean setListened_count(int track_id,int count,Normal_User user){
 
@@ -530,6 +541,7 @@ public class DAOImpli implements DAOInter {
         return false;
     }
 
+    //deletes a user
     @Override
     public boolean deleteUser(Normal_User user){
         try{
@@ -567,6 +579,7 @@ public class DAOImpli implements DAOInter {
     
 
 
+    //changes a password while logged into an account
     @Override
     public boolean changePasswordLoggedIn(String password,Normal_User user){
 
@@ -581,7 +594,7 @@ public class DAOImpli implements DAOInter {
 
 			    if(results>-1){
 
-                    System.out.printf("Password Changed");
+                    System.out.printf("Password Changed\n");
 
 			        return true;
                 }
@@ -601,6 +614,7 @@ public class DAOImpli implements DAOInter {
     }
 
 
+    //checks security question when changing password while not logged in.
     @Override 
     public boolean checkSecurityQuestion(String answer,String user_name){
         try{
@@ -645,7 +659,7 @@ public class DAOImpli implements DAOInter {
 
 
 
-
+    //Changes password when not logged in.
     @Override
     public boolean changePasswordBootScreen(String password,String user_name){
 
@@ -661,7 +675,7 @@ public class DAOImpli implements DAOInter {
 
 			    if(results>-1){
 
-                    System.out.printf("Password Changed");
+                    System.out.printf("Password Changed\n");
 
 			        return true;
                 }
@@ -680,6 +694,7 @@ public class DAOImpli implements DAOInter {
         return false;
     }
 
+    //creates a normal user
     public boolean makeNormalUser(String user_name, String password,String securityAns){
 
          try{
@@ -748,6 +763,7 @@ public class DAOImpli implements DAOInter {
         return false;
     }
 
+    //creates an admin account, needs admin code to work
     public boolean makeAdminUser(String user_name, String password,String securityAns,String admString){
 
 
@@ -796,7 +812,7 @@ public class DAOImpli implements DAOInter {
                  throw new userAlreadyExists(user_name);
                 }
             }else{
-                System.out.println("INVALID ADMIN ACCESS CODE");
+                System.out.println("INVALID ADMIN ACCESS CODE\n");
             }
             
             
@@ -815,6 +831,7 @@ public class DAOImpli implements DAOInter {
         return false;
     }
 
+    //logs in a user by checking username and password
     public Optional<Normal_User> logIn(String username,String password){
         
         try{
@@ -858,6 +875,7 @@ public class DAOImpli implements DAOInter {
 
     
 
+    //gives back how many users are in the database 
     public int numberofUsers(boolean admin){
 
         if(admin){
@@ -882,7 +900,7 @@ public class DAOImpli implements DAOInter {
 		    }
 
         }else{
-            System.out.println("NO ACCESS");
+            System.out.println("NO ACCESS\n");
         }
 
 
@@ -890,6 +908,8 @@ public class DAOImpli implements DAOInter {
         return -1;
     }
 
+
+    //gives infomation on all users in database
     public List<Normal_User> allUserInfo(boolean admin){
 
         ArrayList<Normal_User> list_users= new ArrayList<Normal_User>();
@@ -924,7 +944,7 @@ public class DAOImpli implements DAOInter {
 		    }
 
         }else{
-            System.out.println("NO ACCESS");
+            System.out.println("NO ACCESS\n");
         }
 
 
@@ -935,6 +955,7 @@ public class DAOImpli implements DAOInter {
         return list_users;
     }
 
+    //changes username of an account
     public boolean renameUsername(Normal_User user,String userName){
 
       
@@ -951,7 +972,7 @@ public class DAOImpli implements DAOInter {
 			    int results= renameUserPreparedStatement.executeUpdate();
 
                 if(results>-1){
-                    System.out.println("USERNAME CHANGED TO "+ userName);
+                    System.out.println("USERNAME CHANGED TO "+ userName + "\n");
                     return true;
                 }
 
@@ -969,6 +990,7 @@ public class DAOImpli implements DAOInter {
 
 
 
+    //closes the connection to database
     @Override
     public void logOut(){
         try {

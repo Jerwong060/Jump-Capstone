@@ -16,56 +16,41 @@ import com.jump.capstone.sql.*;
 
 public class User_input {
 
-    private static Scanner input=new Scanner(System.in);
+    private static Scanner input;
     private static Optional<Normal_User> user=Optional.empty();
     private static DAOInter trackerDAO= new DAOImpli();
 
-    public static void user_terminal(){
-        
-    
+    //first page users see when they boot up program
+    public static boolean user_terminal(Scanner scan){
+        input=scan;
         boolean stop=false;
-
+        
         System.out.println("\nWelcome to Music Track! A WONG Product");
-
-        while(!stop){
-
-            stop = bootupPage();
-            
-
-        }
-
-        input.close();
-
-    }
-
-
-
-
-
-
-
-
-
-    private static boolean bootupPage(){
 
         int choice=-1;
         int attempts=0;
-        boolean stop=false;
         while(!stop){
-
-            System.out.println("1-Login");
-            System.out.println("2-Make Account");
-            System.out.println("3-Forgot Password");
-            System.out.println("4-Exit Program");
-            try {
-                choice=input.nextInt();
-            } catch (InputMismatchException e) {
-                System.out.println("Please Enter either 1,2,3, or 4\n");
-                input.nextLine();
+            //main menu for bootup page
+            while(true){
+                System.out.println("1-Login");
+                System.out.println("2-Make Account");
+                System.out.println("3-Forgot Password");
+                System.out.println("4-Exit Program");
+                try {
+                    choice=input.nextInt();
+                    break;
+                //prevents non numbers from being assigned
+                } catch (InputMismatchException e) {
+                    System.out.println("Please Enter either 1,2,3, or 4\n");
+                    input.nextLine();
+                }
             }
+
+            
             
             try {
                 switch (choice) {
+                //for when users want to log in 
                 case 1:
                     user=userLogin();
                     if(user.isPresent()){
@@ -74,10 +59,11 @@ public class User_input {
                         System.out.println("login Failed");
                         attempts++;
                     }
-                    if(attempts>5){
+                    if(attempts>3){
                         throw new userExceedPasswordAttempts();
                     }
                     break;
+                //for when users want to create account
                 case 2:
                     input.nextLine();
                     System.out.println("Account Type");
@@ -89,39 +75,43 @@ public class User_input {
                         System.out.println("FAILED TO CREATE ACCOUNT\n");
                     }
                     break;
+                //for when users want to reset password from bootup screen
                 case 3:
                     forgotPassword();
                     break;
+                //for when user wants to terminate program
                 case 4:
-                    stop=true;
                     trackerDAO.logOut();
-                    break;
+                    user=Optional.empty();
+                    System.exit(0);
                 default:
                     break;
             }
             } catch (userExceedPasswordAttempts e) {
                 System.out.println(e.getMessage());
-                return true;
+                stop=true;
             }
 
             if(user.isPresent()){
                 mainPage(user);
             }
-            
+    }     
 
-    }
+        System.out.println("OUTSIDE");
         return true;
-}
+    }
 
 
 
 
+    //page that occurs when users log in sucessfully
     private static void mainPage(Optional<Normal_User> user){
         int choice=-1;
-        boolean stop=false;
+        boolean stop_main=false;
         boolean good_input=false;
-
-        while(!stop){
+        
+        //main menu
+        while(!stop_main){
             System.out.println("What Would You Like To Do?");
             System.out.println("0-Log Out");
             System.out.println("1-Tracker Info");
@@ -130,7 +120,7 @@ public class User_input {
             System.out.println("4-Look at Albums");
             System.out.println("5-Edit Account Info");
             
-
+            //special options for accounts with admin access
             if(user.get().isAdminAccess()){
                 System.out.println("6-Look at Site Statistics");
                 System.out.println("7-Add Album\n");
@@ -143,126 +133,10 @@ public class User_input {
                 input.nextLine();
             }
 
-            switch (choice) {
-                case 0:
-                    stop=true;
-                    user=Optional.empty();
-                    bootupPage();
-                    break;  
-                case 1:
-                    while(!good_input){
-                     System.out.println("Select The Type of Search: 1-ALL, 2-By ID, 3-By Status or 4-Exit \n");
-
-                 try{
-                    int choice_search= input.nextInt();
-                    if(choice!=4){
-                       tracker_lookup(choice_search,user); 
-                    }
-                    good_input=true;
-                    }catch(InputMismatchException e){
-                    System.out.println("NUMBERS ONLY\n");
-                     input.nextLine();
-                    }
-                }
-                    good_input=false;
-
-                    break;
-                case 2:
-                    boolean error_in_create=false;
-                    int choice_trackerMake=0;
-                    System.out.println("1-Exit");
-                    System.out.println("2-Continue\n");
-                    try {
-                        choice_trackerMake = input.nextInt();
-                    } catch (InputMismatchException e) {
-                        System.out.println("Invalid Input");
-                        choice_trackerMake=1;
-                    }
-                    if( choice_trackerMake != 1){
-                        error_in_create=create_newTracker(user);
-                    }
-                    if(!error_in_create){
-                        System.out.println("Tracker not made");
-                    }
-
-                    break;
-                case 3:
-                while (!good_input) {
-                    System.out.println("What operation would you like to do?");
-                    System.out.println("1-Change Status");
-                    System.out.println("2-Update Listened Count");
-                    System.out.println("3-Delete Tracker");
-                    System.out.println("4-Exit\n");
-
-                     try{
-                        int choice_editTrack= input.nextInt();
-                        if(choice_editTrack!=4){
-                            edit_tracker(choice_editTrack,user);
-                        }
-                        good_input=true;
-                    }catch(InputMismatchException e){
-                    System.out.println("NUMBERS ONLY\n");
-                        input.nextLine();
-                    }
-                }
-                    
-                    good_input=false;
-
-                    
-                    break;
-                case 4: 
-                while (!good_input) {
-                    System.out.println("1-See all Albums");
-                    System.out.println("2-Look at a specific album");
-                    System.out.println("3-Give Rating");
-                    System.out.println("4-Exit \n");
-
-                    try{
-                        int choice_albumLook= input.nextInt();
-                        if(choice_albumLook!=4){
-                           album_lookup(choice_albumLook); 
-                        }
-                        good_input=true;
-                    }catch(InputMismatchException e){
-                        System.out.println("NUMBERS ONLY\n");
-                        input.nextLine();
-                    }
-                }
-                    
-                    good_input=false;
-                    
-
-                
-
-                    
-                    break;
-
-                case 5: 
-                while (!good_input) {
-                    System.out.println("1-Change Username");
-                    System.out.println("2-Change Password");
-                    System.out.println("3-Delete Account");
-                    System.out.println("4-Exit \n");
-
-
-                    try{
-                        int choice_accountEdit= input.nextInt();
-                        if(choice_accountEdit!=4){
-                          edit_account(choice_accountEdit);
-                        }
-                        good_input=true;
-                    }catch(InputMismatchException e){
-                        System.out.println("NUMBERS ONLY\n");
-                        input.nextLine();
-                    }
-                }
-                    
-                good_input=false;
-
-                    
-                    break;
-
-                case 6:
+            //special switch case to handle admin actions
+            if(user.get().isAdminAccess()){
+                switch (choice) {
+                    case 6:
                 while (!good_input) {
                     System.out.println("1-Look at User Count");
                     System.out.println("2-Look at User Created Dates");
@@ -302,6 +176,134 @@ public class User_input {
                         add_album();
                     }
                     break;
+                }
+            }
+
+            //switch case for normal actions. triggers based on choices
+            switch (choice) {
+                //logs out user
+                case 0:
+                    stop_main=true;
+                    user=Optional.empty();
+                    user_terminal(input);
+                    break;
+                //for when user wants to see all of their trackers  
+                case 1:
+                    while(!good_input){
+                     System.out.println("Select The Type of Search: 1-ALL, 2-By ID, 3-By Status or 4-Exit \n");
+
+                 try{
+                    int choice_search= input.nextInt();
+                    if(choice!=4){
+                       tracker_lookup(choice_search,user); 
+                    }
+                    good_input=true;
+                    }catch(InputMismatchException e){
+                    System.out.println("NUMBERS ONLY\n");
+                     input.nextLine();
+                    }
+                }
+                    good_input=false;
+
+                    break;
+                //for when user wants to create a new tracker
+                case 2:
+                    boolean error_in_create=false;
+                    int choice_trackerMake=0;
+                    System.out.println("1-Exit");
+                    System.out.println("2-Continue\n");
+                    try {
+                        choice_trackerMake = input.nextInt();
+                    } catch (InputMismatchException e) {
+                        System.out.println("Invalid Input");
+                        choice_trackerMake=1;
+                    }
+                    if( choice_trackerMake != 1){
+                        error_in_create=create_newTracker(user);
+                    }
+                    if(!error_in_create){
+                        System.out.println("Tracker not made");
+                    }
+
+                    break;
+                //for when user wants to edit a tracker
+                case 3:
+                while (!good_input) {
+                    System.out.println("What operation would you like to do?");
+                    System.out.println("1-Change Status");
+                    System.out.println("2-Update Listened Count");
+                    System.out.println("3-Delete Tracker");
+                    System.out.println("4-Exit\n");
+
+                     try{
+                        int choice_editTrack= input.nextInt();
+                        if(choice_editTrack!=4){
+                            edit_tracker(choice_editTrack,user);
+                        }
+                        good_input=true;
+                    }catch(InputMismatchException e){
+                    System.out.println("NUMBERS ONLY\n");
+                        input.nextLine();
+                    }
+                }
+                    
+                    good_input=false;
+
+                    
+                    break;
+                //for when user wants to see albums or give a rating to an album 
+                case 4: 
+                while (!good_input) {
+                    System.out.println("1-See all Albums");
+                    System.out.println("2-Look at a specific album");
+                    System.out.println("3-Give Rating");
+                    System.out.println("4-Exit \n");
+
+                    try{
+                        int choice_albumLook= input.nextInt();
+                        if(choice_albumLook!=4){
+                           album_lookup(choice_albumLook); 
+                        }
+                        good_input=true;
+                    }catch(InputMismatchException e){
+                        System.out.println("NUMBERS ONLY\n");
+                        input.nextLine();
+                    }
+                }
+                    
+                    good_input=false;
+                    
+
+                
+
+                    
+                    break;
+
+                //For when account changes are needed
+                case 5: 
+                while (!good_input) {
+                    System.out.println("1-Change Username");
+                    System.out.println("2-Change Password");
+                    System.out.println("3-Delete Account");
+                    System.out.println("4-Exit \n");
+
+
+                    try{
+                        int choice_accountEdit= input.nextInt();
+                        if(choice_accountEdit!=4){
+                          edit_account(choice_accountEdit);
+                        }
+                        good_input=true;
+                    }catch(InputMismatchException e){
+                        System.out.println("NUMBERS ONLY\n");
+                        input.nextLine();
+                    }
+                }
+                    
+                good_input=false;
+
+                    
+                    break;
                 default:
                     break;
             }
@@ -314,19 +316,22 @@ public class User_input {
 
 
 
-
+    //handles getting data from DAO and showing the data
     private static void tracker_lookup(int choiceType,Optional<Normal_User> Normal_User){
         boolean good_input=false;
 
+        
         switch (choiceType) {
+            //when user wants to see all trackers
             case 1:
                 System.out.println("Here are all your Tracked Songs: \n");
                 List<user_activity> allTrackers=trackerDAO.getAllActivity(Normal_User.get().getId());
 
                 for (user_activity tracked : allTrackers) {
-                    System.out.println(tracked.toString()); 
+                    System.out.println(tracked.toString(trackerDAO)); 
                 }
                 break;
+            //when user wants to see a tracker based on id
             case 2:
             while (!good_input) {
                 System.out.println("Enter the Tracker's ID:");
@@ -335,7 +340,7 @@ public class User_input {
                     int tracker_id= input.nextInt();
                     Optional<user_activity> tIdSearch = trackerDAO.getActivityByTrackId(tracker_id, Normal_User.get().getId());
                     if(tIdSearch.isPresent()){
-                        System.out.println(tIdSearch.get().toString()); 
+                        System.out.println(tIdSearch.get().toString(trackerDAO)); 
                     }else{
                         System.out.println("No Tracker by that ID");
                     }
@@ -349,7 +354,7 @@ public class User_input {
 
                 good_input=false;
                 break;
-
+            //when a user wants to see trackers based on status
             case 3:
                 while (!good_input) {
                     System.out.println("Enter Status you would like to Track");
@@ -361,7 +366,7 @@ public class User_input {
                         int status= input.nextInt();
                         List<user_activity> byStatus= trackerDAO.getActivityByStatus(status, Normal_User.get().getId());
                         for (user_activity trackers : byStatus) {
-                            System.out.println(trackers.toString()); 
+                            System.out.println(trackers.toString(trackerDAO)); 
                         }
                         good_input=true;
                     } catch (InputMismatchException e) {
@@ -380,6 +385,7 @@ public class User_input {
 
     }
 
+    //for interacting with DAO when creating a new tracker. Takes in user inputs and then attempts to commit changes using DAO.
     private static boolean create_newTracker(Optional<Normal_User> user){
         while(true){
             int album = album_to_track();
@@ -401,7 +407,7 @@ public class User_input {
 
             user_activity newTracker= new user_activity(user.get().getId(),album,status,listened_count,max_albums);
 
-            System.out.println(newTracker.toString());
+            System.out.println(newTracker.noIdString(trackerDAO));
 
             System.out.println("Make Tracker? Y/N");
             input.nextLine();
@@ -413,13 +419,15 @@ public class User_input {
         }
     }
 
+
+    //edits tracker on songs listened to, status, or deletes a tracker
     private static boolean edit_tracker(int choiceType,Optional<Normal_User> user){
         int tracker_change;
 
         List<user_activity> allTrackers= trackerDAO.getAllActivity(user.get().getId());
 
         for (user_activity tracker : allTrackers) {
-            System.out.println(tracker.toString());
+            System.out.println(tracker.toString(trackerDAO));
         }
 
         while(true){
@@ -427,9 +435,11 @@ public class User_input {
             try {
                 tracker_change=input.nextInt();
                 System.out.println("Tracker being Changed: " + tracker_change + "\n");
-                if(trackerDAO.getActivityByTrackId(tracker_change, user.get().getId()).isEmpty()){
+                if(!trackerDAO.getActivityByTrackId(tracker_change, user.get().getId()).isPresent()){
                     System.out.println("Tracker doesn't exist");
                     System.out.println("Try Again with new Tracker ID\n");
+                    choiceType=-1;
+                    break;
                 }else{
                     break;
                 }
@@ -493,7 +503,7 @@ public class User_input {
                 int songs;
                 Optional<user_activity> tracker = trackerDAO.getActivityByTrackId(tracker_change, user.get().getId());
                 int song_max= trackerDAO.getAlbumByid(tracker.get().getAlbum_id()).get().getAlbum_songcount();
-                System.out.println(tracker.toString());
+                System.out.println(tracker.get().toString(trackerDAO));
                 System.out.println("How many songs listened to?");
 
                 while(true){
@@ -527,6 +537,7 @@ public class User_input {
         }
     }
 
+    //looks up all albums, a specific album, or gives a rating to album. Handles the DAO calls
     private static void album_lookup(int choiceType){
 
         switch (choiceType) {
@@ -540,25 +551,33 @@ public class User_input {
                 System.out.println("\n");
                 break;
             case 2:
-
-                 while(true){
-                System.out.println("Please Enter Id of Album");
-                 try {
-                    int id= input.nextInt();
-
-                    Optional<music_album> album= trackerDAO.getAlbumByid(id);
-
-                    if(album.isPresent()){
-                        System.out.println(album.get().toString() + "\n");
-                    }else{
-                        System.out.println("Album Not Found");
-                    }
+                List<music_album> album_idList= trackerDAO.listAllalbums();
+                
+                while(true){
                     
-                    break;
-                 } catch (InputMismatchException e) {
+                    for (music_album music_album : album_idList) {
+                        System.out.println("ID: " + music_album.getAlbum_id() + " Name: " + music_album.getAlbum_name());
+                    }
+
+                    System.out.println("\n");
+
+                    System.out.println("Please Enter Id of Album");
+                    try {
+                        int id= input.nextInt();
+
+                        Optional<music_album> album= trackerDAO.getAlbumByid(id);
+
+                     if(album.isPresent()){
+                            System.out.println(album.get().toString() + "\n");
+                        }else{
+                            System.out.println("Album Not Found");
+                        }
+                    
+                        break;
+                    } catch (InputMismatchException e) {
                     System.out.println("Numbers Only");
-                 }
-                }
+                    }
+                    }
                 break;
 
             case 3:
@@ -596,7 +615,7 @@ public class User_input {
     }
 
     
-
+    //edits account infomation by calling the DAO. Deletes account, changes user name or password
     private static void edit_account(int choiceType){
         switch (choiceType) {
             case 1:
@@ -672,7 +691,7 @@ public class User_input {
 
                 if(delete_authorization.equals(user.get().getUser_name())){
                     trackerDAO.deleteUser(user.get());
-                    bootupPage();
+                    user_terminal(input);
                 }
 
                 break;
@@ -682,6 +701,8 @@ public class User_input {
 
     }
 
+
+    //for admins to look at site infomation. interacts with DAO for these operations 
     private static void siteInfo_lookup (int choiceType){
 
         switch (choiceType) {
@@ -701,6 +722,7 @@ public class User_input {
 
     }
 
+    //adds an album to the database
     private static void add_album(){
 
         String artist;
@@ -785,6 +807,7 @@ public class User_input {
     }
 
 
+    //gets the user inputs for songs listened to
     private static int listened(int album_id){
 
         System.out.println("How many Songs listened to:");
@@ -812,6 +835,7 @@ public class User_input {
 
     }
 
+    //gets the status of an album from user
     private static int status_Album(){
 
         while(true){
@@ -840,6 +864,8 @@ public class User_input {
 
     }
 
+
+    //gets the album the user wants to track
     private static int album_to_track(){
        
        int largest_id=1;
@@ -869,6 +895,7 @@ public class User_input {
 
 
 
+    //gets log in infomation from user and sends it to DAO
     private static Optional<Normal_User> userLogin(){
 
         String username="";
@@ -887,6 +914,8 @@ public class User_input {
 
     }
 
+
+    //for when a user wants to create an account
     private static boolean userCreate(String user_type){
         String username="";
         String password="";
@@ -933,6 +962,7 @@ public class User_input {
 }
 
 
+    //for when a user wants to reset password without logging in. Takes in Security Answer to question, checks it, and if correct allows user to enter new password. 
     private static void forgotPassword(){
                     while (true){
                         input.nextLine();
@@ -940,7 +970,7 @@ public class User_input {
                         String exit= input.nextLine().toLowerCase();
 
                         if(exit.equals("y")){
-                            bootupPage();
+                            user_terminal(input);
                         }
 
                         System.out.println("Enter Username: ");

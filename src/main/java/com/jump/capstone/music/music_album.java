@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 
 public class music_album {
-
+    //Object for albums mirroring the structure of data in the album table in Database
 
    private int album_id;
    private String album_artist;
@@ -28,7 +28,7 @@ public class music_album {
         this.album_release=album_release;
     }
 
-
+    //special constructor for newly created albums not already in the database
       public music_album(String album_artist, String album_name, int album_songcount,int album_ratingcount,String album_genre,
     double album_rating, LocalDate album_release){
         this.album_artist = album_artist;
@@ -127,6 +127,7 @@ public class music_album {
                 + album_genre + ", album_rating=" + album_rating + ", album_release=" + album_release + "]";
     }
 
+    //special toString for newly created albums
     public String noIdString(){
          return "music_album [ "+ "album_artist= " + album_artist + ", album_name= " + album_name
                 + ", album_songcount= " + album_songcount + ", album_ratingcount= " + album_ratingcount + ", album_genre= "
