@@ -3,7 +3,6 @@ package com.jump.capstone.user;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 import java.util.InputMismatchException;
 import java.util.List;
