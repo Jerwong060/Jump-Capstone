@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.jump.capstone.music.music_album;
 import com.jump.capstone.user.User_input;
-import com.jump.capstone.sql.*;
+import com.jump.capstone.sql.*;;
 
 /**
  * Hello world!
@@ -21,7 +21,7 @@ public class App
     public App(){
 
        
-        //DAOInter trackerDAO= new DAOImpli();
+       // DAOInter trackerDAO= new DAOImpli();
       
 
 

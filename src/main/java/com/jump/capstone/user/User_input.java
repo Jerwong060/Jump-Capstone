@@ -1,5 +1,9 @@
 package com.jump.capstone.user;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Optional;
@@ -126,7 +130,7 @@ public class User_input {
 
             if(user.get().isAdminAccess()){
                 System.out.println("6-Look at Site Statistics");
-                System.out.println("7- Add Album\n");
+                System.out.println("7-Add Album\n");
             }
             
             try{
@@ -482,19 +486,222 @@ public class User_input {
     }
 
     private static void album_lookup(int choiceType){
+        if(choiceType==1){
+            List<music_album> albums= trackerDAO.listAllalbums();
+
+            for (music_album album: albums) {
+                System.out.println(album.toString()+ "\n");
+                
+            }
+            System.out.println("\n");
+        }else if(choiceType==2){
+            while(true){
+                System.out.println("Please Enter Id of Album");
+                 try {
+                    int id= input.nextInt();
+
+                    Optional<music_album> album= trackerDAO.getAlbumByid(id);
+
+                    if(album.isPresent()){
+                        System.out.println(album.get().toString() + "\n");
+                    }else{
+                        System.out.println("Album Not Found");
+                    }
+                    
+                    break;
+                 } catch (InputMismatchException e) {
+                    System.out.println("Numbers Only");
+                 }
+            }
+        }
 
     }
 
     private static void edit_account(int choiceType){
+        switch (choiceType) {
+            case 1:
+                
+                while(true){
+                    input.nextLine();
+                    System.out.println("Please Enter New Username(CASE SENSITIVE)");
+
+                    String new_user= input.nextLine();
+
+                    System.out.println("Changing Username to: "+ new_user);
+
+                    System.out.println("Change? y/n");
+
+                    String choice = input.nextLine().toLowerCase();
+
+                    if(choice.equals("y")){
+                        boolean changed = trackerDAO.renameUsername(user.get(), new_user);
+
+                        if (!changed) {
+                            System.out.println("Username Not Changed, Error Occured");
+                        }
+                        break;
+                    }else{
+
+                        System.out.println("1-Retry \n 2-Exit");
+                        int choice_num;
+                        try {
+                            choice_num = input.nextInt();
+                        } catch (InputMismatchException e) {
+                            break;
+                        }
+
+                        if(choice_num==2){
+                            mainPage(user);
+                        }
+                    
+                    }
+
+                }
+
+
+                break;
+            case 2: 
+                while (true) {
+                    input.nextLine();
+                    System.out.println("Enter New Password: ");
+                    String password_new= input.nextLine();
+                    System.out.println("Reenter Password: ");
+                    String reentry_pass= input.nextLine();
+                    boolean changed=false;
+                    if(password_new.equals(reentry_pass)){
+                        changed=trackerDAO.changePasswordLoggedIn(password_new, user.get());
+                    }else{
+                        System.out.println("Passwords Don't Match");
+                    }
+
+                    if(changed){
+                        break;
+                    }else{
+                        System.out.println("Password change FAILED ");
+                        break;
+                    }
+                }
+                break;
+            
+            case 3: 
+
+                System.out.println("Type Username to Start Delection or Exit to Stop Delection");
+                input.nextLine();
+                
+                String delete_authorization= input.nextLine();
+
+                if(delete_authorization.equals(user.get().getUser_name())){
+                    trackerDAO.deleteUser(user.get());
+                    bootupPage();
+                }
+
+                break;
+            default:
+                break;
+        }
 
     }
 
     private static void siteInfo_lookup (int choiceType){
 
+        switch (choiceType) {
+            case 1:
+                System.out.println("There are: " + trackerDAO.numberofUsers(user.get().isAdminAccess()) + " USERS\n" );
+                break;
+            case 2:
+                List<Normal_User> user_list= trackerDAO.allUserInfo(user.get().isAdminAccess());
+                for (Normal_User user : user_list) {
+                    System.out.println(user.toString());
+                }
+                System.out.println("\n");
+                break;
+            default:
+                break;
+        }
+
     }
 
     private static void add_album(){
 
+        String artist;
+        String name;
+        int song_count;
+        String genre;
+        LocalDate release;
+         boolean made=false;
+    
+        while(true){
+            input.nextLine();
+            System.out.println("Album: ");
+            name=input.nextLine();
+
+            System.out.println("Enter Artist Name");
+            artist = input.nextLine();
+
+            System.out.println("Enter Genre:");
+
+            genre= input.nextLine();
+
+
+
+            while(true){
+                try {
+                    System.out.println("Enter song count");
+                    song_count=input.nextInt();
+                    if(song_count<=0){
+                        System.out.println("Song Count too low");
+                    }else{
+                        break;
+                    }
+                } catch (InputMismatchException e) {
+                    System.out.println("Songs can only be whole numbers");
+                    
+            }
+                
+        }
+
+            while(true){
+                input.nextLine();
+                try {
+
+                System.out.println("Enter Release Date. Example: August 10-2021 ");
+
+                String date= input.nextLine();
+
+                SimpleDateFormat fromUser = new SimpleDateFormat("MMMM dd-yyyy");
+
+                SimpleDateFormat myFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+                String reformattedStr = myFormat.format(fromUser.parse(date));
+
+                release=LocalDate.parse(reformattedStr);
+                break;
+            } catch (ParseException e) {
+                System.out.println("Incorrect Format");
+            }catch(DateTimeParseException e){
+                System.out.println("Incorrect Date Format,");
+            }
+            }
+            
+
+            break;
+        }
+
+         music_album newOne= new music_album(artist,name,song_count,0,genre,0.00,release);
+
+         System.out.println(newOne.noIdString());
+
+         System.out.println("Create? y/n");
+
+         String choice= input.nextLine().toLowerCase();
+
+         if(choice.equals("y")){
+            made = trackerDAO.addAlbum(newOne, user.get().isAdminAccess());
+         }
+
+         if(!made){
+            System.out.println("Song Not Added");
+         }
     }
 
 

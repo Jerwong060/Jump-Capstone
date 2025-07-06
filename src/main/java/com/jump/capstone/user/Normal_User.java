@@ -30,6 +30,13 @@ public class Normal_User{
         this.admin= admin_access;
     }
 
+    public Normal_User(int user_id,String name, LocalDate user_date, boolean user_admin){
+        this.id=user_id;
+        this.user_name=name;
+        this.date_created= user_date;
+        this.admin=user_admin;
+    }
+
     public String getUser_name() {
         return user_name;
     }
@@ -57,8 +64,8 @@ public class Normal_User{
 
     @Override
     public String toString() {
-        return "Normal_User [user_name=" + user_name + ", password=" + password + ", date_created=" + date_created
-                + ", admin=" + admin + ", id=" + id + ", securityAnswer=" + securityAnswer + "]";
+        return "Normal_User [user_name=" + user_name  + ", date_created=" + date_created
+                + ", admin=" + admin + ", id=" + id + "]";
     }
 
     

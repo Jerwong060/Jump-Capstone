@@ -530,9 +530,79 @@ public class DAOImpli implements DAOInter {
         return false;
     }
 
-    
     @Override
-    public boolean changePassword(String password,String answer,Normal_User user){
+    public boolean deleteUser(Normal_User user){
+        try{
+			connection=ConnectionManager.getConnection();
+
+
+           
+    
+                PreparedStatement deleteUserStatement=connection.prepareStatement("DELETE FROM user where user_name = ? ");
+
+                deleteUserStatement.setString(1, user.getUser_name());
+
+			    int results= deleteUserStatement.executeUpdate();
+
+			    if(results>-1){
+
+                    System.out.printf("USER DELETED\n");
+
+			        return true;
+                }
+            
+			
+                
+            
+		}catch(SQLException e){
+			System.out.println(e.getMessage());
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+
+
+
+        return false;
+    }
+    
+
+
+    @Override
+    public boolean changePasswordLoggedIn(String password,Normal_User user){
+
+     try{
+                PreparedStatement setCountStatement=connection.prepareStatement("UPDATE user SET user_pass = ? WHERE user_id=?");
+
+                setCountStatement.setString(1, Password_Handler.password_worker_access(password));
+
+                setCountStatement.setInt(2, user.getId());
+
+			    int results= setCountStatement.executeUpdate();
+
+			    if(results>-1){
+
+                    System.out.printf("Password Changed");
+
+			        return true;
+                }
+            
+			
+                
+            
+		}catch(SQLException e){
+			System.out.println(e.getMessage());
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+
+
+
+        return false;
+    }
+
+
+    @Override
+    public boolean changePasswordBootScreen(String password,String answer,Normal_User user){
 
      try{
             boolean allowed=false;
@@ -559,13 +629,13 @@ public class DAOImpli implements DAOInter {
             
 
             if(allowed){
-                PreparedStatement setCountStatement=connection.prepareStatement("UPDATE user SET user_pass = ? WHERE user_id=?");
+                PreparedStatement setPassStatement=connection.prepareStatement("UPDATE user SET user_pass = ? WHERE user_id=?");
 
-                setCountStatement.setString(1, Password_Handler.password_worker_access(password));
+                setPassStatement.setString(1, Password_Handler.password_worker_access(password));
 
-                setCountStatement.setInt(2, user.getId());
+                setPassStatement.setInt(2, user.getId());
 
-			    int results= setCountStatement.executeUpdate();
+			    int results= setPassStatement.executeUpdate();
 
 			    if(results>-1){
 
@@ -798,9 +868,9 @@ public class DAOImpli implements DAOInter {
         return -1;
     }
 
-    public ArrayList<LocalDate> allUsercreatedDates(boolean admin){
+    public List<Normal_User> allUserInfo(boolean admin){
 
-        ArrayList<LocalDate> date_created= new ArrayList<LocalDate>();
+        ArrayList<Normal_User> list_users= new ArrayList<Normal_User>();
 
         if(admin){
 
@@ -808,17 +878,23 @@ public class DAOImpli implements DAOInter {
             
 		        connection=ConnectionManager.getConnection();
            
-                PreparedStatement allUsersPreparedStatement=connection.prepareStatement("SELECT user_made FROM user");
+                PreparedStatement allUsersPreparedStatement=connection.prepareStatement("SELECT * FROM user");
 
 			    ResultSet results= allUsersPreparedStatement.executeQuery();
 
                 while(results.next()){
+                    int id= results.getInt(1);
+                    String name= results.getString(2);
+                    LocalDate dateMade= results.getDate(5).toLocalDate();
+                    boolean type= results.getBoolean(6);
+                    
+                   Normal_User temp= new Normal_User(id,name,dateMade,type);
 
-                    date_created.add(results.getDate(1).toLocalDate());
-                   
+                    list_users.add(temp);
+                    
                 }
 
-                return date_created;
+                return list_users;
 		    }catch(SQLException e){
 			System.out.println(e.getMessage());
             }catch(Exception e){
@@ -834,7 +910,7 @@ public class DAOImpli implements DAOInter {
     
 
 
-        return date_created;
+        return list_users;
     }
 
     public boolean renameUsername(Normal_User user,String userName){

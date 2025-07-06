@@ -29,6 +29,17 @@ public class music_album {
     }
 
 
+      public music_album(String album_artist, String album_name, int album_songcount,int album_ratingcount,String album_genre,
+    double album_rating, LocalDate album_release){
+        this.album_artist = album_artist;
+        this.album_name=album_name;
+        this.album_songcount=album_songcount;
+        this.album_ratingcount=album_ratingcount;
+        this.album_genre=album_genre;
+        this.album_rating=album_rating;
+        this.album_release=album_release;
+    }
+
     public int getAlbum_id() {
         return album_id;
     }
@@ -116,6 +127,11 @@ public class music_album {
                 + album_genre + ", album_rating=" + album_rating + ", album_release=" + album_release + "]";
     }
 
+    public String noIdString(){
+         return "music_album [ "+ "album_artist= " + album_artist + ", album_name= " + album_name
+                + ", album_songcount= " + album_songcount + ", album_ratingcount= " + album_ratingcount + ", album_genre= "
+                + album_genre + ", album_rating= " + album_rating + ", album_release= " + album_release + "]";
+    }
 
 
 }

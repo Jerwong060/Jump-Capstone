@@ -31,6 +31,9 @@ public class ConnectionManager {
 	}
 
 	public static void closeConnection() throws SQLException{
-		connection.close();
+		if (connection != null){
+			connection.close();
+		}
+		
 	}
 }
