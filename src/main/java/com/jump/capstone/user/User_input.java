@@ -52,7 +52,28 @@ public class User_input {
                 switch (choice) {
                 //for when users want to log in 
                 case 1:
-                    user=userLogin();
+                    int choice_exit=2;
+                    while(true){
+                        System.out.println("1-Continue");
+                        System.out.println("2-Exit\n");
+
+                        try {
+                            choice_exit= input.nextInt();
+                            break;
+                        } catch (InputMismatchException e) {
+                            break;
+                        }
+
+
+                    }
+                    
+                    if(choice_exit==1){
+                       user=userLogin(); 
+                    }else{
+                        break;
+                    }
+                    
+                    
                     if(user.isPresent()){
                         System.out.println("Logged in as " + user.get().getUser_name()+ "\n");
                     }else{
@@ -66,6 +87,27 @@ public class User_input {
                 //for when users want to create account
                 case 2:
                     input.nextLine();
+
+                    int choice_exit_make=2;
+                    while(true){
+                        System.out.println("1-Continue");
+                        System.out.println("2-Exit\n");
+
+                        try {
+                            choice_exit_make= input.nextInt();
+                            break;
+                        } catch (InputMismatchException e) {
+                            break;
+                        }
+
+
+                    }
+                    
+                    if(choice_exit_make==2){
+                       break;
+                    }
+
+
                     System.out.println("Account Type");
                     String user_type=input.nextLine();
 
@@ -900,7 +942,7 @@ public class User_input {
 
         String username="";
         String password="";
-        
+
         System.out.println("Username:");
         input.nextLine();
         username=input.nextLine();
