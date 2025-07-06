@@ -12,3 +12,8 @@ Walkthrough Of App
 
 Install Tutorial
 
+
+[![Video WalkThrough](https://img.youtube.com/vi/EoFte1h1wLQ/0.jpg)](https://www.youtube.com/watch?v=EoFte1h1wLQ)
+
+
+Admin Account Creation
