@@ -3,6 +3,7 @@ package com.jump.capstone.user;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -799,27 +800,37 @@ public class User_input {
                     }
                 } catch (InputMismatchException e) {
                     System.out.println("Songs can only be whole numbers");
+                    input.nextLine();
                     
             }
-                
+            
         }
+            input.nextLine();
 
             while(true){
-                input.nextLine();
+
                 try {
 
                 System.out.println("Enter Release Date. Example: August 10-2021 ");
-
-                String date= input.nextLine();
 
                 SimpleDateFormat fromUser = new SimpleDateFormat("MMMM dd-yyyy");
 
                 SimpleDateFormat myFormat = new SimpleDateFormat("yyyy-MM-dd");
 
+                String date= input.nextLine();
+                
                 String reformattedStr = myFormat.format(fromUser.parse(date));
 
                 release=LocalDate.parse(reformattedStr);
-                break;
+
+                
+
+                if(release.isBefore(LocalDate.now())){
+                    break;
+                }else{
+                    System.out.println("Date Can't be in the Future");
+                }
+                
             } catch (ParseException e) {
                 System.out.println("Incorrect Format");
             }catch(DateTimeParseException e){
@@ -870,6 +881,7 @@ public class User_input {
             }
             } catch (InputMismatchException e) {
                 System.out.println("Numbers Only");
+                input.nextLine();
             } 
         }
 
@@ -897,6 +909,7 @@ public class User_input {
                 
             } catch (InputMismatchException e) {
                 System.out.println("Numbers Only");
+                input.nextLine();
             }
 
         }
@@ -930,6 +943,7 @@ public class User_input {
 
             } catch (InputMismatchException e) {
                 System.out.println("Number Only\n");
+                input.nextLine();
             }
         }
     }

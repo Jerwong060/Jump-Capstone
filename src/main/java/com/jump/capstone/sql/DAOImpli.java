@@ -347,7 +347,7 @@ public class DAOImpli implements DAOInter {
 
 			if(results>-1){
 
-                System.out.println(activity.getTrack_id() +" has been created\n");
+                System.out.println("New Tracker has been created\n");
 
 			    return true;
             }
